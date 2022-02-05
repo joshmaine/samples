@@ -10,4 +10,6 @@ MovieDataDive contains an investigative project looking at IMDB data to answer q
 WineAnalysis is a project done in RStudio with the Rstuido (rmd) file and an HTML export included. This is a exploration of wine ratings compared to physical and chemical traits
 
 
-
+ Investigating Eron Emails from Fruad was a learning project to use Machine Learning to fit an algothrim in python to spot and flag fraudlent activities based on confirmed examples from the investigation.
+ 
+ Wranging OpenStreetMap Data was created to analyze city data from scrapping Google map data.
