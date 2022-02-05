@@ -1,0 +1,601 @@
+#Exploratory Data Analysis for the Red Wine Quality Data Set by Joshua Maine
+##10/6/18
+========================================================
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+#Install all the packages I use for the project. 
+#I ran into repeated issues with packages and libraries if loaded previously. 
+#Knitr constantly failed until I commented these out
+
+#nstall.packages("ggplot2", dependencies = T, repos = "http://cran.us.r-project.org") 
+#install.packages("knitr", dependencies = T, repos = "http://cran.us.r-project.org")
+#install.packages("dplyr", dependencies = T, repos = "http://cran.us.r-project.org")
+#install.packages("xtable", dependencies = T, repos = "http://cran.us.r-project.org")
+#install.packages("ggally", dependencies =T, repos = "http://cran.us.r-project.org")
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Calling all the libraries I might need
+#library(ggplot2)
+#library(dplyr)
+#library(knitr)
+#library(xtable)
+#library(GGally)
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Load the Data
+wd <- read.csv('wineQualityReds.csv')
+```
+
+
+#INTRODUCTION
+
+
+This dataset interest me as its similar to some further data analysis I want to 
+do on data on beer. My longest running hobby, for almost a decade, has been 
+homebrewing, and there is more similarities to red wines and beer than whites.
+
+
+#Univariate Explorations and Plots
+
+
+To get an idea of the data and gain a better understanding, I'm going to work 
+through a few Univariate explorations. I'll start by getting an idea of the 
+table structure and looking at the summary.
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+str(wd)
+```
+
+
+The data set as 1599 records with 13 variables. Taking a full look at the 
+variables, it has:
+
+X appears to be the wine tested, the removal of name and other identifying 
+information, shows this is likely from a judging or evaluation of the wines 
+in the data set.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+summary(wd)
+
+```
+
+With all the variables, this is most certainly data used in comparing and 
+evaluting different red wines. Looking at the summary data there are
+things I want to plot and get a better idea of how the data is grouped and to 
+find any outliers for correction.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(ggplot2)
+qplot(x = quality, data = wd)
+```
+
+Most of the quality values exist as a 5 or a 6, so I may group these a little 
+tigther to sort the standouts on both sides. Grouping the values by pairs to 
+have below average, average, above average is shown below.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Creating and ordering the rankings values
+wd$ranking <- ifelse(wd$quality < 5, 'below average',
+                     ifelse(wd$quality < 7, 'average', 'above average'))
+wd$ranking <- ordered(wd$ranking,
+                     levels = c('below average', 'average', 'above average'))
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(ggplot2)
+qplot(x = ranking, data = wd)
+```
+
+```{r}
+summary(wd$ranking)
+```
+
+Looking at possibly related variables for trends or relations seems like a 
+decent assumption. I'm going to look at sulfur and acidity related values first.
+THe relationships between acidity and pH, sugar and alchol content, and alchol
+and density as I suspect density in this case is referring to the gravity value
+of the wine.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+qplot(x = free.sulfur.dioxide, data = wd, binwidth = 1) + xlim(2,40)
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+summary(wd$free.sulfur.dioxide)
+```
+
+Limiting the x axis lead to removal of 40 records
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+qplot(x = total.sulfur.dioxide, data = wd, binwidth = 1) + 
+  scale_x_continuous(limits = c(6, 130), breaks = seq(0, 130, 10))
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+summary(wd$total.sulfur.dioxide)
+```
+Limiting the x axis lead to removal of 41 records
+
+The next few charts relate to the acidity measures.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+qplot(x = fixed.acidity, data = wd, binwidth = .25) + 
+  scale_x_continuous(limits = c(4.5, 16), breaks = seq(4.5, 16, 0.5))
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+summary(wd$fixed.acidity)
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+qplot(x = volatile.acidity, data = wd, binwidth = .02) + 
+  scale_x_continuous(limits = c(0.1, 1.05), breaks = seq(0.1, 1.1, 0.1))
+```
+Limiting the x axis lead to removal of 10 records.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+summary(wd$volatile.acidity)
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+qplot(x = citric.acid, data = wd, binwidth = .01) + 
+  scale_x_continuous(limits = c(0, 0.75), breaks = seq(0, 0.75, 0.1))
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+summary(wd$citric.acid)
+```
+
+Limiting the x axis lead to removal of 6 records.
+
+The next set of plots deal with residual sugars, alchol, and density
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+qplot(x = residual.sugar, data = wd, binwidth = .1) + 
+  scale_x_continuous(limits = c(0.9, 9), breaks = seq(0.9, 9, 0.5))
+```
+
+Limiting the x axis lead to removal of 10 records.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+summary(wd$residual.sugar)
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+qplot(x = alcohol, data = wd, binwidth = .1) + 
+  scale_x_continuous(limits = c(8.9, 13.5), breaks = seq(8.9, 13.5, 0.5))
+```
+
+Limiting the x axis lead to removal of 20 records.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+summary(wd$alcohol)
+```
+
+This is another measure related to sugar to alchol conversions in
+terms of fermentation potential and actual. The vinter would usually take an 
+originial gravity reading and a final gravity, what I believe density to be, to
+measure fermentable effeciency.
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+qplot(x = density, data = wd, binwidth = .0001) + 
+  scale_x_continuous(limits = c(0.99, 1.01), breaks = seq(0.99, 1.003, 0.005))
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+summary(wd$density)
+```
+The last group of variables or other measures that initially I do not know 
+or have any expectations about their respective values.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+qplot(x = chlorides, data = wd, binwidth = .0001) + 
+  scale_x_continuous(limits = c(0.012, 0.162), breaks = seq(0.012, 0.162, 0.02))
+```
+
+Limiting the x axis lead to removal of 59 records.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+summary(wd$chlorides)
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+qplot(x = pH, data = wd, binwidth = .01) + 
+  scale_x_continuous(limits = c(2.7, 3.7), breaks = seq(2.7, 3.5, 0.1))
+```
+
+Limiting the x axis lead to removal of 16 records.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+summary(wd$pH)
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+qplot(x = sulphates, data = wd, binwidth = .01) + 
+  scale_x_continuous(limits = c(0.33, 1.2), breaks = seq(0.33, 1.2, 0.1))
+```
+
+Limiting the x axis lead to removal of 18 records.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+summary(wd$sulphates)
+```
+
+
+#Univariate Analysis
+
+#Template Questions
+#-------------------------------------------------
+
+##What is the structure of your dataset?
+The Red wine data set has 1599 items and 13 variables for each entry, one of 
+which is a simple numerical listing of all the entries.  There is one subjective
+value, quaility, which is how the wine was judged based on its othere values. 
+The rest of the data set is composed of the chemical measurements of the wine.
+The data doesn't contain one variable that may become a lurking variable, taste 
+notes. I 
+
+##What is/are the main feature(s) of interest in your dataset?
+The features that have my interest relate my an existing hobby and area of 
+interest I already have. I'm more interested in the fermentation related data 
+including sugar, alchol, and density. My other area of interests is looking at 
+the quality scores given and how it relates to the other variables.
+
+##What other features in the dataset do you think will help support your \
+##investigation into your feature(s) of interest?
+At this point I think there will be common trends in the wines that fall into 
+the 3 different ranking groups. Using the chemical properties, I suspect some 
+things will be found to be indicitive of an above average wine.
+
+##Did you create any new variables from existing variables in the dataset?
+I created a ranking of the quality values into 3 categories of below average, 
+average, and above average. I may have to create more once I get into the 
+bivariate exploration.
+
+##Of the features you investigated, were there any unusual distributions?
+Quality, density, chlorides, and volatile acidity have more uniform 
+distributions. Both sulfur measures, sugar, alchol, fixed acidity, and sulfates
+have a some sort of leftward skew. pH right skewed slightly right.
+Surprisingly citric acid has a flatter but still slightly skewed left 
+distribution.
+
+##Did you perform any operations on the data to tidy, adjust, or change the form\
+##of the data? If so, why did you do this?
+The data appears pretty tidy and easy to work with. I haven't had to change any
+forms yet but have to do some adjustments to compare some values more easily.
+
+
+#Bivariate Plots Section
+
+Next up, I'm going to compare different chemical properties against the 
+subjective quality measure and against other chemical markers.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(aes(x = alcohol, y = ranking), data = wd, ) + geom_point(alpha = 1/2, color = 'purple')
+```
+
+Seems a bit too tidy and ordered, going to jitter the plot to so the density of the data a bit better.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(aes(x = alcohol, y = ranking), data = wd, ) + geom_point(alpha = 1/2, position = 'jitter', color = 'blue') 
+```
+
+That is better in terms of relecting the data in each category.
+
+I find it interesting that it appears the above and below average rankings had 
+both have a more narrow band in their repective alcohol content. 
+
+I'm going to continue plotting out the various sets I'm curious about.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(aes(x = alcohol, y = quality), data = wd) + geom_point(alpha = 1/2) 
+```
+
+
+```{r echo=FALSE}
+ggplot(aes(x = pH, y = ranking),  data = wd) + geom_point(alpha = 1/2, , position = 'jitter') 
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(aes(x = ranking, y = citric.acid), data = wd)  + geom_point(alpha = 1/5, position = 'jitter') 
+```
+
+I'm going to add jitter properties to plots that appear too clustered and possibly some trend lines if they make sense for the data points.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(aes(x = residual.sugar, y = alcohol), data = wd) + geom_point(alpha = 1/20)
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(aes(x = residual.sugar, y = density), data = wd) + geom_point(alpha = 1/20)
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(aes(x = alcohol, y = density), data = wd) + geom_point(alpha = 1/10, color = 'red')
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(aes(x = chlorides, y = sulphates), data = wd) + geom_point(alpha = 1/20)
+```
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(aes(x = free.sulfur.dioxide, y = sulphates), data = wd) + geom_point(alpha = 1/10, color = 'orange') + geom_line(stat = 'summary', fun.y = mean) 
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(aes(x = free.sulfur.dioxide, y = total.sulfur.dioxide), data = wd) + geom_point(alpha = 1/20, color = 'green') + geom_line(stat = 'summary', fun.y = mean) 
+```
+
+
+#Bivariate Analysis
+
+The first set of information that I want to check is the correlation values between the campared values. Using a pearson method caluculation as shown below I've calucated all the below values.
+
+I'm going to have to use the raw quality scores that ranking is derived from.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+cor.test(wd$alcohol, wd$quality, method = 'pearson')
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+cor.test(wd$alcohol, wd$quality, method = 'pearson')
+
+cor.test(wd$pH, wd$quality, method = 'pearson')
+
+cor.test(wd$citric.acid, wd$quality, method = 'pearson')
+
+cor.test(wd$residual.sugar, wd$alcohol, method = 'pearson')
+
+cor.test(wd$residual.sugar, wd$density, method = 'pearson')
+
+cor.test(wd$alcohol, wd$density, method = 'pearson')
+
+cor.test(wd$chlorides, wd$sulphates, method = 'pearson')
+
+cor.test(wd$free.sulfur.dioxide, wd$sulphates, method = 'pearson')
+cor.test(wd$free.sulfur.dioxide, wd$total.sulfur.dioxide, method = 'pearson')
+```
+
+Below is a table of the Correlation between data variables.
+
+
+
+Variable 1 | Variable 2 | r | Strength | -/+
+Alcohol | Quality | 0.48 | Moderate | +
+pH | Quality | -0.06 | Weak | -
+Citric Acid | Quality | 0.23 | Weak | +
+Sugar | Alcohol | 0.04 | Weak | +
+Sugar | Density | 0.36 | Moderate | +
+Alcohol | Density | -0.49 | Moderate | -
+Cholrides | Sulphates | 0.37 | Moderate |+
+Free Sulfur | Sulphates  | 0.05 | Weak | +
+Free Sulfur | Total Sulfur | 0.67 | Strong | +
+
+
+I am surprised by a few of the correlations. The free sulfur dioxide and total 
+sulfur dioxide have a strong positive relationship that isn't surprising as 
+its measuring the same chemical compounds. Citric acid and pH don't have a 
+relation to quality scores, so I can assume the judges probably had no biases 
+to these qualities of the wine. 
+
+Sugar and density and alcohol and density both had moderate r values but the 
+measures had opposite polarities. Sugar being the fuel for the yeast
+is responsible for both measures and their directions. Density is the relational
+measure offermentation potential and the goal range is 0 or below. Alcohol is 
+less dense than water and sugar so a negative value denotes higher conversion. 
+This is also shown in the moderate to strong negative correlation between 
+alcohol and density with a r of -0.49, meaning more alcohol means a lower 
+density but sugar leads to a higher value.
+
+It's an interesting note in trying to objectively explain the judges quality 
+score, that judges statistically are more inclined to rate a higher ABV with a 
+higher score.
+
+
+
+### Talk about some of the relationships you observed in this part of the \
+investigation. How did the feature(s) of interest vary with other features in \
+the dataset?
+
+My main point of interest are factors that may show trends in the taste judging 
+of the samples. It seems most chemical markers have insignificant relations but
+there was a significant r in correlating alcohol with the scores.
+
+
+### Did you observe any interesting relationships between the other features \
+(not the main feature(s) of interest)? 
+From my own interests, I found the mathematical relationship that shows the 
+sugar, alcohol, and density interesting to see charted out.
+
+### What was the strongest relationship you found?
+The correlation of between sulfur measurements.
+
+# Multivariate Plots Section
+
+To start off the multivariate investigation, it seems sound to some matrices 
+plots and look for any additional investigations that haven't been apparent to 
+me so far. I've created a subset to exclude the sequential sample numbers of the
+wines X.
+
+```{r}
+nox <- subset(wd, select=c(               
+fixed.acidity, volatile.acidity, citric.acid, residual.sugar, chlorides, free.sulfur.dioxide, total.sulfur.dioxide, density, pH, sulphates, alcohol, quality, ranking))
+```
+
+Using this subset the matrix is as follows.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(GGally)
+set.seed(1599)
+names(nox)
+ggpairs(nox)
+```
+
+
+I don't see anything thats super unexpected. The residual sugar and alcohol both skew the same
+as expected. The citric acid to sugar distribution is a little wider than I had thought but that sharp decline on the tail is interesting, so I'm going to add that to investigative plots.
+
+From the previous data explorations, the first relationship I want to look at
+is the one between residular sugar, alcohol, and quality/ranking.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(aes(x = residual.sugar, y = alcohol), data = wd) +
+  geom_line(aes(color = quality), stat = 'summary', fun.y = median)
+```
+
+That isn't a view that is easily readable by most, so if I use the hard set 
+ranking categories it may translate better to the veiwer.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(aes(x = residual.sugar, y = alcohol), data = wd) +
+  geom_line(aes(color = ranking), stat = 'summary', fun.y = median)
+```
+
+Ok that makes the rankings stand out a bit more and also shows that above the 
+entries judged with a higher score overall plot higher in alcohol. 
+
+I want to explore some of the more posible complex chemical relations. Im just 
+trying out a some different combinations looking for things that stand out. The 
+citric acid and sugar relation caught my eye in the mass plotting so I want to 
+investigate that.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(aes(x = residual.sugar, y = citric.acid), data = wd) +
+  geom_line(aes(color = ranking), stat = 'summary', fun.y = median)
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(aes(x = citric.acid, y = residual.sugar/100), data = wd) +
+  geom_line(aes(color = ranking), stat = 'summary', fun.y = median)
+```
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(aes(x = fixed.acidity, y = volatile.acidity), data = wd) +
+  geom_bar(aes(color = citric.acid), stat = 'summary', fun.y = mean)
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(aes(x = citric.acid, y = sulphates), data = wd) +
+  geom_bar(aes(color = ranking), stat = 'summary', fun.y = median)
+```
+
+Interesting view of two no related chemical markers in respect to quality score.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(aes(x = chlorides, y = sulphates),
+       data = wd) + geom_boxplot() + 
+  stat_summary(fun.y = mean, geom = 'point', shape = 4)
+```
+
+Well that doesn't really show much. I'm going to keep exploring different measures to quality.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(aes(x = total.sulfur.dioxide, y = citric.acid), data = wd) +
+  geom_bar(aes(color = ranking), stat = 'summary', fun.y = mean)
+```
+
+That's more like the views Im hoping to find. Going to note that the highest 
+sulfur samples happened to rank in the top group. I restricted the axis for 
+better presentation so those values were lost.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(aes(x = total.sulfur.dioxide, y = citric.acid), data = wd) +
+  geom_bar(aes(color = ranking), stat = 'summary', fun.y = mean) + xlim(0, 160)
+```
+
+
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(aes(x = citric.acid, y = sulphates), data = wd) +
+  geom_bar(aes(color = ranking), stat = 'summary', fun.y = median) + xlim(0, .77)
+```
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(aes(y = alcohol, x = residual.sugar, fill = quality), data = nox) + geom_tile() + scale_fill_gradientn(colors = colorRampPalette(c('green', 'red'))(100))
+```
+
+
+# Multivariate Analysis
+
+### Talk about some of the relationships you observed in this part of the \
+investigation. Were there features that strengthened each other in terms of \
+looking at your feature(s) of interest?
+
+The scieniftic explanation of alcohol, sugar, and density plot out nicely as 
+expected. It appears that there are trends in higher rated wines, may not a 
+chemical composistion but just the quanity that lead to a better taste 
+experience. Knowing the quality ranking criteria and categorical scores but be
+a great data point to have in furthering this investigation.
+
+### Were there any interesting or surprising interactions between features?
+The overall measures of most chemical existing in higher rates in the highest 
+rated samples has my curiousity peaked in this data. Maybe scores can't be 
+factored out into key points, simply the higher content but still in relation to
+the other compounds make flavor even more complicated to account for.
+
+------
+
+# Final Plots and Summary
+
+### Plot One
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+set.seed(1599)
+names(nox)
+ggpairs(nox)
+
+```
+
+### Description One
+This is the overall scatterplot matrix for the data set. This can be argued that
+it may be very audience specific to the inclusion in presenting data with this 
+added to it. For those that understand what is shown it adds an overall insight 
+to the relations explored.
+
+### Plot Two
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(aes(x = citric.acid, y = residual.sugar/100), data = wd) +
+  geom_line(aes(color = ranking), stat = 'summary', fun.y = median)
+```
+
+
+### Description Two
+
+This plot helps point to a recurring trend that higher quality wines average a 
+lower resisudal sugar content. Some assumptions can be made to that line of 
+thinking that could open a deeper analysis with a more robust data set. If I was
+the vinter of some juddged wines and had additional data such as age, grape 
+variety, and other variables of the winery, this could help me improve the 
+quaility or drive to better consistent products that are likely to be favored in
+judgings.
+
+### Plot Three
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(aes(y = alcohol, x = residual.sugar, fill = quality), data = nox) + geom_tile() + scale_fill_gradientn(colors = colorRampPalette(c('green', 'red'))(100))
+```
+### Description Three
+
+This a related plot to some of the other discussions showing 'dryer', lower 
+sweetness, and higher ABV measures tend to be favored more. 
+
+
+# Reflection
+
+
+I found this data set interesting but maybe a bit incomplete for the questions 
+it aroused in myself. My largest interest is how this can be used to find the
+factors that impact judging of the wines. There were some trends and relations
+that were found that helped shed some light on the question at hand. The most 
+common factor seem the concentration of compound including alcohol tend to score
+higher. This could be due to several factors that prompt further discovery. I
+feel that having the values that were judged to get the quality scores, as well
+vinter specific inforamtion such as region, yeast strain, grape variety, and age
+could really round out the picture of what goes into making great wine.
